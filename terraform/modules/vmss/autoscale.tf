@@ -47,6 +47,6 @@ resource "azurerm_monitor_autoscale_setting" "vmss_autoscale" {
     }
   }
   tags  = var.tags
-  count = var.autoscaling_enabled == true && length(var.metrics_trigger) > 0 ? 1 : 0
+  count = var.autoscaling_enabled ? 1 : 0
 
 }
