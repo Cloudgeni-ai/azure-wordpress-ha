@@ -18,7 +18,7 @@ variable "database_name" {
 
 variable "database_sku" {
   description = "Database SKU name"
-  default     = "GP_Standard_D2s_v3"
+  default     = "B_Standard_B1ms"
 }
 
 variable "database_postgresql_version" {
@@ -40,9 +40,7 @@ variable "database_postgresql_admin_username" {
   description = "Database admin user"
 }
 
-variable "database_postgresql_admin_password" {
-  description = "Database admin password"
-}
+
 
 variable "vm_nsg_whitelist_ips_ports" {
   description = "List of ip's allowed to connect into database server."

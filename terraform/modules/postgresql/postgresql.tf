@@ -6,7 +6,7 @@ resource "azurerm_postgresql_flexible_server" "postgresql_flexible_server" {
   backup_retention_days        = var.backup_retention_days
   geo_redundant_backup_enabled = var.geo_redundant_backup
   administrator_login          = var.database_postgresql_admin_username
-  administrator_password       = var.database_postgresql_admin_password
+  
   version                      = var.database_postgresql_version
   delegated_subnet_id          = var.subnet_id != "" ? var.subnet_id : null
   private_dns_zone_id          = var.private_dns_zone_id != "" ? var.private_dns_zone_id : null

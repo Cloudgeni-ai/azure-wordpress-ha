@@ -146,7 +146,7 @@ module "azure-postgresql" {
   region                             = local.region
   resource_postgresql_name           = "postgresqlf-${local.suffix}"
   database_name                      = "wordpress"
-  database_sku                       = "GP_Standard_D2s_v3"
+  database_sku                       = "B_Standard_B1ms"
   database_postgresql_version        = "13"
   storage_mb                         = 32768
   backup_retention_days              = 20
@@ -154,7 +154,7 @@ module "azure-postgresql" {
   high_availability_enabled          = false
   postgresql_zone                    = ""
   database_postgresql_admin_username = "adminsiteswordpress"
-  database_postgresql_admin_password = var.database_postgresql_admin_password
+  
   tags                               = local.tags
   vm_nsg_whitelist_ips_ports = [{
     "name"      = "vmss_ip"
