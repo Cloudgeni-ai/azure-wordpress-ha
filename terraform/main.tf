@@ -100,41 +100,11 @@ module "vmss" {
   subnet_id                 = module.network.subnet_id
   network_security_group_id = module.network.nsg_id
   ssh_public_key            = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCvQRluXF3TIK00twfnhL1dIS263+JUKXEFh6jV1xuVUFqZMKKyCEoxg+7B1juiUBLETRb1CWcoLMPYZDjyyEheC6LM5rAH2PIBYxujzNx6b82h+NEMEI5mF45HE+NPsnDdOwBTMYFYt0jGOG9/Z5Eqkv0EL5kBX75cvAbATBIVfA8Zocny9mIP/tAFjNQ8hqc+rYnjfrH8ex+p8fREofPARNC7VTPICM7+/ia2h6H/XqFvSxJm7x3pMKbYsbjjduuUIpGK5GzDBKxz+NOZCYHIAwJk1VYa/K/2ZVzqjpTQQapnJ+9GmJHuyuq4qYB/ACPphqInZRjvwG74qEVv9GzvTDH7RmZHj7f2v/XrQ6iA7iB+eJesm5OlJLn29YLwEsOWzgmPIIzkvvF9nviCPxK2zjx0nnJ9/wOEJkxSsT97BhUWWZNnyjgIRMyWQxhPvyQVv1OAeXqJdrLlRO1uC800KSOL/+LHDA5KFRq+0snk5L+P4/sssb9wnhPPBRoi2Is="
-  autoscaling_enabled       = true
-  capacity_default          = 3
-  capacity_minimum          = 3
-  capacity_maximum          = 4
-
-  metrics_trigger = [
-    {
-      name                   = "Percentage CPU"
-      time_grain             = "PT1M"
-      statistic              = "Average"
-      time_window            = "PT5M"
-      time_aggregation       = "Average"
-      operator               = "GreaterThan"
-      threshold              = 75
-      frequency              = "PT1M"
-      scale_action_direction = "Increase"
-      scale_action_type      = "ChangeCount"
-      scale_action_value     = "1"
-      scale_action_cooldown  = "PT15M"
-    },
-    {
-      name                   = "Percentage CPU"
-      time_grain             = "PT1M"
-      statistic              = "Average"
-      time_window            = "PT20M"
-      time_aggregation       = "Average"
-      operator               = "LessThan"
-      threshold              = 30
-      frequency              = "PT1M"
-      scale_action_direction = "Decrease"
-      scale_action_type      = "ChangeCount"
-      scale_action_value     = "1"
-      scale_action_cooldown  = "PT15M"
-    }
-  ]
+  autoscaling_enabled       = false
+  capacity_default          = 1
+  capacity_minimum          = 1
+  capacity_maximum          = 1
+  metrics_trigger           = []
 
   tags = local.tags
 }
