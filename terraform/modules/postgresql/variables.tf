@@ -42,6 +42,7 @@ variable "database_postgresql_admin_username" {
 
 variable "database_postgresql_admin_password" {
   description = "Database admin password"
+  default     = null
 }
 
 variable "vm_nsg_whitelist_ips_ports" {
