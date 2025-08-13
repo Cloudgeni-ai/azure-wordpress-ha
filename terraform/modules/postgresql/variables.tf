@@ -18,7 +18,7 @@ variable "database_name" {
 
 variable "database_sku" {
   description = "Database SKU name"
-  default     = "GP_Standard_D2s_v3"
+  default     = "B_Standard_B1ms"
 }
 
 variable "database_postgresql_version" {
