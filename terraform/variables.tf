@@ -1,3 +1,6 @@
-variable "database_postgresql_admin_password" {
+variable "db_postgresql_admin_password" {
   description = "Database admin password"
+  type        = string
+  sensitive   = true
+
 }
