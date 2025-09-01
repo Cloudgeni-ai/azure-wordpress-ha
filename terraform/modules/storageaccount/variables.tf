@@ -1,9 +1,11 @@
 variable "resource_group" {
   description = "Resource group for storage account."
+  default     = "validation-rg"
 }
 
 variable "storage_account_name" {
   description = "Name of storage account."
+  default     = "validationst"
 }
 
 variable "region" {
@@ -16,14 +18,11 @@ variable "account_tier" {
   default     = "Standard"
 }
 
-variable "enable_https_traffic_only" {
-  description = "Enable https-only traffic."
-  default     = false
-}
+
 
 variable "account_replication_type" {
   description = "Replication type of account."
-  default     = "LRS"
+  default     = "GRS"
 }
 
 variable "containers" {
