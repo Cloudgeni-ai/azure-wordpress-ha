@@ -7,7 +7,7 @@ resource "azurerm_storage_account" "storage_account" {
   access_tier               = var.access_tier
   account_replication_type  = var.account_replication_type
   is_hns_enabled            = var.is_hns_enabled
-  enable_https_traffic_only = var.enable_https_traffic_only
+  
   public_network_access_enabled   = var.public_network_access_enabled 
   nfsv3_enabled             = var.nfsv3_enabled
   min_tls_version           = var.min_tls_version
