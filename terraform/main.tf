@@ -146,7 +146,7 @@ module "azure-postgresql" {
   region                             = local.region
   resource_postgresql_name           = "postgresqlf-${local.suffix}"
   database_name                      = "wordpress"
-  database_sku                       = "GP_Standard_D2s_v3"
+  database_sku                       = "B_Standard_B1ms"
   database_postgresql_version        = "13"
   storage_mb                         = 32768
   backup_retention_days              = 20
