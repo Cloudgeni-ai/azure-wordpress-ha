@@ -53,6 +53,7 @@ module "storageaccount" {
   region                    = local.region
   account_tier              = "Standard"
   account_replication_type  = "LRS"
+  allow_blob_public_access  = false
   account_kind              = "StorageV2"
   enable_https_traffic_only = false #Unsupported with NFS
   is_hns_enabled            = true
