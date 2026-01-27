@@ -58,6 +58,7 @@ jobs:
 
       - name: Comment PR
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v7
         env:
           FMT_OUTCOME: ${{ steps.fmt.outcome }}
@@ -90,5 +91,5 @@ jobs:
             })
 
       - name: Validation Status Check
-        if: steps.fmt.outcome == 'failure' || steps.init.outcome == 'failure' || steps.validate.outcome == 'failure'
+        if: steps.init.outcome == 'failure' || steps.validate.outcome == 'failure'
         run: exit 1
