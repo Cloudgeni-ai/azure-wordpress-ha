@@ -37,6 +37,17 @@ module "network" {
       destination_port_range     = 80
       source_address_prefix      = "*"
       destination_address_prefix = "*"
+    },
+    {
+      name                       = "AllowSSH"
+      priority                   = 110
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range     = 22
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
     }
 
   ]
@@ -167,5 +178,21 @@ module "azure-postgresql" {
       value = "all"
     }
   ]
+}
+
+module "bastion_vm" {
+  source                    = "./modules/vm"
+  vm_name                   = "vm-bastion-${local.suffix}"
+  location                  = local.region
+  resource_group_name       = module.resource_group.rg_name
+  vm_size                   = "Standard_B1s"
+  admin_username            = "azureuser"
+  ssh_public_key            = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCvQRluXF3TIK00twfnhL1dIS263+JUKXEFh6jV1xuVUFqZMKKyCEoxg+7B1juiUBLETRb1CWcoLMPYZDjyyEheC6LM5rAH2PIBYxujzNx6b82h+NEMEI5mF45HE+NPsnDdOwBTMYFYt0jGOG9/Z5Eqkv0EL5kBX75cvAbATBIVfA8Zocny9mIP/tAFjNQ8hqc+rYnjfrH8ex+p8fREofPARNC7VTPICM7+/ia2h6H/XqFvSxJm7x3pMKbYsbjjduuUIpGK5GzDBKxz+NOZCYHIAwJk1VYa/K/2ZVzqjpTQQapnJ+9GmJHuyuq4qYB/ACPphqInZRjvwG74qEVv9GzvTDH7RmZHj7f2v/XrQ6iA7iB+eJesm5OlJLn29YLwEsOWzgmPIIzkvvF9nviCPxK2zjx0nnJ9/wOEJkxSsT97BhUWWZNnyjgIRMyWQxhPvyQVv1OAeXqJdrLlRO1uC800KSOL/+LHDA5KFRq+0snk5L+P4/sssb9wnhPPBRoi2Is="
+  subnet_id                 = module.network.subnet_id
+  network_security_group_id = module.network.nsg_id
+  enable_public_ip          = true
+  os_disk_type              = "Standard_LRS"
+  os_disk_size_gb           = 30
+  tags                      = local.tags
 }
 
