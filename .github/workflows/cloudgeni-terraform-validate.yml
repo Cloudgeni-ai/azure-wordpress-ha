@@ -33,6 +33,17 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Create Backend Override for Plan
+        run: |
+          cat > backend_override.tf <<EOF
+          terraform {
+            backend "local" {}
+          }
+          EOF
+
+      - name: Reinitialize with Local Backend
+        run: terraform init -reconfigure -backend=true
+
       - name: Terraform Plan
         run: terraform plan -input=false
         continue-on-error: true
