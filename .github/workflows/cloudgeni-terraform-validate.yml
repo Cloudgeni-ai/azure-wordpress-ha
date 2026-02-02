@@ -23,6 +23,14 @@ jobs:
         with:
           terraform_version: latest
 
+      - name: Create Backend Override
+        run: |
+          cat > backend_override.tf << 'EOF'
+          terraform {
+            backend "local" {}
+          }
+          EOF
+
       - name: Terraform Format Check
         id: fmt
         run: terraform fmt -check -recursive
@@ -30,7 +38,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init -backend=false -reconfigure
+        run: terraform init -reconfigure
 
       - name: Terraform Validate
         id: validate
@@ -65,4 +73,8 @@ jobs:
             exit 1
           fi
 
-          echo "✅ All validation checks passed!"
+          if [ "${{ steps.plan.outcome }}" != "success" ]; then
+            echo "⚠️  Plan had issues. Review the plan output above."
+          fi
+
+          echo "✅ All critical validation checks passed!"
