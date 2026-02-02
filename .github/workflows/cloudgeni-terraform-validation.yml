@@ -1,0 +1,61 @@
+name: Cloudgeni Terraform Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/cloudgeni-terraform-validation.yml'
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'terraform/**'
+
+jobs:
+  terraform-validate:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        working-directory: terraform
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend=false
+        working-directory: terraform
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+        working-directory: terraform
+
+      - name: Report Results
+        if: always()
+        run: |
+          echo "### Terraform Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Format Check**: ${{ steps.fmt.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Init**: ${{ steps.init.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Validate**: ${{ steps.validate.outcome }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if format check failed
+        if: steps.fmt.outcome == 'failure'
+        run: |
+          echo "Terraform format check failed. Run 'terraform fmt -recursive' to fix."
+          exit 1
