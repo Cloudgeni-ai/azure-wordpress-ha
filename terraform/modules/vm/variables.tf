@@ -35,6 +35,12 @@ variable "subnet_id" {
   type        = string
 }
 
+variable "os_disk_type" {
+  description = "OS disk storage account type"
+  type        = string
+  default     = "Standard_LRS"
+}
+
 variable "tags" {
   description = "Tags"
   type        = map(string)
