@@ -169,3 +169,63 @@ module "azure-postgresql" {
   ]
 }
 
+resource "azurerm_public_ip" "simple_vm_pip" {
+  name                = "pip-simplevm-${local.suffix}"
+  location            = local.region
+  resource_group_name = module.resource_group.rg_name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+  tags                = local.tags
+}
+
+resource "azurerm_network_interface" "simple_vm_nic" {
+  name                = "nic-simplevm-${local.suffix}"
+  location            = local.region
+  resource_group_name = module.resource_group.rg_name
+  tags                = local.tags
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = module.network.subnet_id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.simple_vm_pip.id
+  }
+}
+
+resource "azurerm_network_interface_security_group_association" "simple_vm_nsg" {
+  network_interface_id      = azurerm_network_interface.simple_vm_nic.id
+  network_security_group_id = module.network.nsg_id
+}
+
+resource "azurerm_linux_virtual_machine" "simple_vm" {
+  name                = "vm-simple-${local.suffix}"
+  location            = local.region
+  resource_group_name = module.resource_group.rg_name
+  size                = "Standard_B2s"
+  admin_username      = "azureuser"
+  tags                = local.tags
+
+  network_interface_ids = [
+    azurerm_network_interface.simple_vm_nic.id
+  ]
+
+  admin_ssh_key {
+    username   = "azureuser"
+    public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCvQRluXF3TIK00twfnhL1dIS263+JUKXEFh6jV1xuVUFqZMKKyCEoxg+7B1juiUBLETRb1CWcoLMPYZDjyyEheC6LM5rAH2PIBYxujzNx6b82h+NEMEI5mF45HE+NPsnDdOwBTMYFYt0jGOG9/Z5Eqkv0EL5kBX75cvAbATBIVfA8Zocny9mIP/tAFjNQ8hqc+rYnjfrH8ex+p8fREofPARNC7VTPICM7+/ia2h6H/XqFvSxJm7x3pMKbYsbjjduuUIpGK5GzDBKxz+NOZCYHIAwJk1VYa/K/2ZVzqjpTQQapnJ+9GmJHuyuq4qYB/ACPphqInZRjvwG74qEVv9GzvTDH7RmZHj7f2v/XrQ6iA7iB+eJesm5OlJLn29YLwEsOWzgmPIIzkvvF9nviCPxK2zjx0nnJ9/wOEJkxSsT97BhUWWZNnyjgIRMyWQxhPvyQVv1OAeXqJdrLlRO1uC800KSOL/+LHDA5KFRq+0snk5L+P4/sssb9wnhPPBRoi2Is="
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+  disable_password_authentication = true
+}
+

@@ -1,6 +1,10 @@
 # File: .github/workflows/workflow.yml
 
-on: [push]
+on:
+  push:
+    paths:
+      - 'themes/**'
+      - '.github/workflows/workflow.yml'
 
 name: deploy_themes
 
@@ -11,11 +15,26 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Check if Azure credentials are configured
+      id: check-secrets
+      run: |
+        if [ -n "${{ secrets.AZURE_CLIENT_ID }}" ] && [ -n "${{ secrets.AZURE_TENANT_ID }}" ] && [ -n "${{ secrets.AZURE_SUBSCRIPTION_ID }}" ]; then
+          echo "configured=true" >> $GITHUB_OUTPUT
+        else
+          echo "configured=false" >> $GITHUB_OUTPUT
+          echo "::warning::Azure credentials not configured. Skipping deployment."
+        fi
+
     - name: Azure Login
+      if: steps.check-secrets.outputs.configured == 'true'
       uses: azure/login@v1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
     - name: Azure CLI script
+      if: steps.check-secrets.outputs.configured == 'true'
       uses: azure/CLI@v1
       with:
         inlineScript: |
