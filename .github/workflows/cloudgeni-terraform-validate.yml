@@ -1,0 +1,80 @@
+name: Cloudgeni Terraform Validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/cloudgeni-terraform-validate.yml'
+
+jobs:
+  terraform-validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+      - name: Create Backend Override
+        run: |
+          cat > backend_override.tf << 'EOF'
+          terraform {
+            backend "local" {}
+          }
+          EOF
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -reconfigure
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -input=false -no-color
+        continue-on-error: true
+        env:
+          ARM_SKIP_PROVIDER_REGISTRATION: true
+
+      - name: Validation Summary
+        if: always()
+        run: |
+          echo "## Terraform Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Step | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Format Check | ${{ steps.fmt.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Init | ${{ steps.init.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate | ${{ steps.validate.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Plan | ${{ steps.plan.outcome }} |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.fmt.outcome }}" != "success" ]; then
+            echo "❌ Format check failed. Run 'terraform fmt -recursive' to fix."
+            exit 1
+          fi
+
+          if [ "${{ steps.init.outcome }}" != "success" ] || [ "${{ steps.validate.outcome }}" != "success" ]; then
+            echo "❌ Validation failed."
+            exit 1
+          fi
+
+          if [ "${{ steps.plan.outcome }}" != "success" ]; then
+            echo "⚠️  Plan had issues. Review the plan output above."
+          fi
+
+          echo "✅ All critical validation checks passed!"
