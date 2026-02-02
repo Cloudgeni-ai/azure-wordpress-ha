@@ -3,9 +3,9 @@ output "subnet_id" {
 }
 
 output "nsg_id" {
-    value = length(azurerm_network_security_group.nsg) > 0 ? azurerm_network_security_group.nsg[0].id : null
+  value = length(azurerm_network_security_group.nsg) > 0 ? azurerm_network_security_group.nsg[0].id : null
 }
 
 output "my_ip" {
-    value = "${chomp(data.http.myip.body)}"
+  value = chomp(data.http.myip.body)
 }
