@@ -44,6 +44,12 @@ jobs:
       - name: Reinitialize with Local Backend
         run: terraform init -reconfigure -backend=true
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        continue-on-error: true
+
       - name: Terraform Plan
         run: terraform plan -input=false
         continue-on-error: true
