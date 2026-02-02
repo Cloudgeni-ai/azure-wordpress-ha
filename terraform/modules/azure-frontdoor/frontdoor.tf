@@ -1,8 +1,8 @@
 resource "azurerm_frontdoor" "frontdoor" {
-  name                                         = var.frontdoor_name
-  resource_group_name                          = var.resource_group
-  friendly_name       = var.friendly_name != null ? var.friendly_name : null
-  tags  = var.tags
+  name                  = var.frontdoor_name
+  resource_group_name   = var.resource_group
+  friendly_name         = var.friendly_name != null ? var.friendly_name : null
+  tags                  = var.tags
   load_balancer_enabled = var.load_balancer_enabled
 
   backend_pool_settings {
@@ -11,7 +11,7 @@ resource "azurerm_frontdoor" "frontdoor" {
   }
 
 
-  dynamic routing_rule {
+  dynamic "routing_rule" {
     for_each = var.routing_rules
     content {
       name               = lookup(routing_rule.value, "name")
@@ -30,7 +30,7 @@ resource "azurerm_frontdoor" "frontdoor" {
           custom_forwarding_path                = lookup(forwarding_configuration.value, "custom_forwarding_path", null)
           forwarding_protocol                   = lookup(forwarding_configuration.value, "forwarding_protocol", "MatchRequest")
         }
-      }  
+      }
       dynamic "redirect_configuration" {
         for_each = lookup(routing_rule.value, "redirect_configurations", [])
         content {
@@ -41,24 +41,24 @@ resource "azurerm_frontdoor" "frontdoor" {
           custom_path         = lookup(redirect_configuration.value, "custom_path", null)
           custom_query_string = lookup(redirect_configuration.value, "custom_query_string", null)
         }
-      } 
+      }
     }
   }
 
-  dynamic backend_pool_load_balancing {
+  dynamic "backend_pool_load_balancing" {
     for_each = var.backend_pool_load_balancings
     content {
-      name = lookup(backend_pool_load_balancing.value, "name")
+      name                            = lookup(backend_pool_load_balancing.value, "name")
       sample_size                     = lookup(backend_pool_load_balancing.value, "sample_size", 4)
       successful_samples_required     = lookup(backend_pool_load_balancing.value, "successful_samples_required", 2)
       additional_latency_milliseconds = lookup(backend_pool_load_balancing.value, "additional_latency_milliseconds", 0)
     }
   }
 
-  dynamic backend_pool_health_probe {
+  dynamic "backend_pool_health_probe" {
     for_each = var.backend_pool_health_probes
     content {
-      name = lookup(backend_pool_health_probe.value, "name")
+      name                = lookup(backend_pool_health_probe.value, "name")
       enabled             = lookup(backend_pool_health_probe.value, "enabled", true)
       path                = lookup(backend_pool_health_probe.value, "path", "/")
       protocol            = lookup(backend_pool_health_probe.value, "protocol", "Http")
@@ -67,12 +67,12 @@ resource "azurerm_frontdoor" "frontdoor" {
     }
   }
 
-  dynamic backend_pool {
+  dynamic "backend_pool" {
     for_each = var.backend_pools
     content {
-      name = lookup(backend_pool.value, "name")
+      name                = lookup(backend_pool.value, "name")
       load_balancing_name = lookup(backend_pool.value, "load_balancing_name")
-      health_probe_name = lookup(backend_pool.value, "health_probe_name")
+      health_probe_name   = lookup(backend_pool.value, "health_probe_name")
 
       dynamic "backend" {
         for_each = lookup(backend_pool.value, "backends")
@@ -81,7 +81,7 @@ resource "azurerm_frontdoor" "frontdoor" {
         content {
           enabled     = lookup(backend.value, "enabled", true)
           address     = lookup(backend.value, "address")
-          host_header = lookup(backend.value, "host_header","")
+          host_header = lookup(backend.value, "host_header", "")
           http_port   = lookup(backend.value, "http_port", 80)
           https_port  = lookup(backend.value, "https_port", 443)
           priority    = lookup(backend.value, "priority", null)
@@ -91,7 +91,7 @@ resource "azurerm_frontdoor" "frontdoor" {
     }
   }
 
-  dynamic frontend_endpoint {
+  dynamic "frontend_endpoint" {
     for_each = var.frontend_endpoints
     content {
       name                                    = lookup(frontend_endpoint.value, "name", null)

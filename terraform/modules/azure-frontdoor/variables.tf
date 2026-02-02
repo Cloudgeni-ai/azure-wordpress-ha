@@ -10,10 +10,10 @@ variable "resource_group" {
 }
 
 variable "friendly_name" {
- description = "FrontDoor Friendly name"
- type = string
- default = "" 
-  
+  description = "FrontDoor Friendly name"
+  type        = string
+  default     = ""
+
 }
 variable "backend_pools_certificate_name_check_enforced" {
   description = "Enforce certificate name check on HTTPS requests to all backend pools"
@@ -131,23 +131,23 @@ variable "backend_pools" {
 variable "backend_pool_health_probes" { # required
   description = "A list of backend_pool_health_probe blocks."
   type        = list(map(string))
-  default = [{ "default" = "default" }] # fake list of map, if enable_default_backend_pools_parameters take default probe values
+  default     = [{ "default" = "default" }] # fake list of map, if enable_default_backend_pools_parameters take default probe values
 }
 
 variable "backend_pool_load_balancings" { # required
   description = "A list of backend_pool_load_balancing blocks."
   type        = list(map(string))
-  default = [{ "default" = "default" }] 
+  default     = [{ "default" = "default" }]
 }
 
-variable "frontend_endpoints" { 
+variable "frontend_endpoints" {
   description = "A list frontend_endpoint block."
   type        = list(any)
   default     = []
 
 }
 
-variable "routing_rules" { 
+variable "routing_rules" {
   description = "A routing_rule block."
   type        = any
   default     = []

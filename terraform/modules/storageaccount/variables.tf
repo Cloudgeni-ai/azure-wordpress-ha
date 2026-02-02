@@ -117,6 +117,6 @@ variable "blob_properties" {
 
 variable "access_tier" {
   description = " Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts"
-  type = string
-  default = "Hot"
+  type        = string
+  default     = "Hot"
 }
