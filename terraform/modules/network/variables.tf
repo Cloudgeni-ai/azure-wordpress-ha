@@ -1,13 +1,13 @@
 variable "name" {
-    description = "Network resource Name"
-    type = string
-  
+  description = "Network resource Name"
+  type        = string
+
 }
 
 variable "region" {
-    description = "Region of the network resource "
-    type = string
-  
+  description = "Region of the network resource "
+  type        = string
+
 }
 
 variable "resource_group" {
@@ -28,15 +28,15 @@ variable "tags" {
 }
 
 variable "service_endpoints" {
-    description = "Service endpoints for the subnet"
-    type = list
-    default = ["Microsoft.Storage"]
-  
+  description = "Service endpoints for the subnet"
+  type        = list(any)
+  default     = ["Microsoft.Storage"]
+
 }
 
 variable "private_dns_name" {
-    description = "private dns zone name"
-    type = string
-    default = "privatelink.mysql.database.azure.com"
-  
+  description = "private dns zone name"
+  type        = string
+  default     = "privatelink.mysql.database.azure.com"
+
 }
