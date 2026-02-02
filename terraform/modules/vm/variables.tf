@@ -41,6 +41,24 @@ variable "os_disk_type" {
   default     = "Standard_LRS"
 }
 
+variable "allow_ssh_from_ip" {
+  description = "Source IP address or CIDR range allowed to SSH"
+  type        = string
+  default     = "*"
+}
+
+variable "allow_http" {
+  description = "Allow HTTP traffic (port 80)"
+  type        = bool
+  default     = false
+}
+
+variable "allow_https" {
+  description = "Allow HTTPS traffic (port 443)"
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
   description = "Tags"
   type        = map(string)
