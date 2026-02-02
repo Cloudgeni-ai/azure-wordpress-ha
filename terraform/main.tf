@@ -70,6 +70,14 @@ module "storageaccount" {
     {
       name                  = "wordpress-content-bkp-monthly"
       container_access_type = "private"
+    },
+    {
+      name                  = "media-assets"
+      container_access_type = "private"
+    },
+    {
+      name                  = "logs"
+      container_access_type = "private"
     }
   ]
   network_rules = [
