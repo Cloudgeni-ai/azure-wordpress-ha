@@ -1,6 +1,10 @@
 # File: .github/workflows/workflow.yml
 
-on: [push]
+on:
+  push:
+    paths:
+      - 'themes/**'
+      - '.github/workflows/workflow.yml'
 
 name: deploy_themes
 
