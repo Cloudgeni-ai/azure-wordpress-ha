@@ -18,14 +18,19 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Configure OCI Credentials
-        uses: oracle-actions/configure-credentials@v1
-        with:
-          user: ${{ secrets.OCI_USER_OCID }}
-          fingerprint: ${{ secrets.OCI_FINGERPRINT }}
-          tenancy: ${{ secrets.OCI_TENANCY_OCID }}
-          region: eu-frankfurt-1
-          key_content: ${{ secrets.OCI_PRIVATE_KEY }}
+      - name: Configure OCI credentials
+        run: |
+          mkdir -p ~/.oci
+          cat > ~/.oci/config <<EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_USER_OCID }}
+          fingerprint=${{ secrets.OCI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_TENANCY_OCID }}
+          region=eu-frankfurt-1
+          key_file=$HOME/.oci/private_key.pem
+          EOF
+          printf '%s' "${{ secrets.OCI_PRIVATE_KEY }}" > ~/.oci/private_key.pem
+          chmod 600 ~/.oci/config ~/.oci/private_key.pem
 
       - name: Terraform Init
         run: terraform init -backend=false
