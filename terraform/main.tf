@@ -1,5 +1,9 @@
 provider "oci" {
-  region = local.region
+  region      = local.region
+  tenancy_ocid     = var.tenancy_ocid
+  user_ocid        = var.user_ocid
+  fingerprint      = var.api_fingerprint
+  private_key      = var.api_private_key
 }
 
 locals {

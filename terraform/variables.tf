@@ -3,6 +3,22 @@ variable "tenancy_ocid" {
   type        = string
 }
 
+variable "user_ocid" {
+  description = "OCI User OCID for API key authentication"
+  type        = string
+}
+
+variable "api_fingerprint" {
+  description = "Fingerprint of the OCI API signing key"
+  type        = string
+}
+
+variable "api_private_key" {
+  description = "PEM-encoded OCI API private key content"
+  type        = string
+  sensitive   = true
+}
+
 variable "availability_domain" {
   description = "OCI Availability Domain name (e.g. ABcd:EU-FRANKFURT-1-AD-1)"
   type        = string
