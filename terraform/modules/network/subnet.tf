@@ -1,8 +1,10 @@
-resource "azurerm_subnet" "subnet" {
-  name                 = "snt-${var.name}"
-  resource_group_name  = var.resource_group
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.1.0/24"]
-  service_endpoints    = var.service_endpoints
-
+resource "oci_core_subnet" "subnet" {
+  compartment_id    = var.compartment_id
+  vcn_id            = oci_core_vcn.vcn.id
+  cidr_block        = "10.0.1.0/24"
+  display_name      = "snt-${var.name}"
+  dns_label         = "subnet"
+  route_table_id    = oci_core_route_table.rt.id
+  security_list_ids = [oci_core_security_list.sl.id]
+  freeform_tags     = var.tags
 }

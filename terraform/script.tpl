@@ -2,35 +2,36 @@
 export HOME="/root"
 export WP_INSTALL_PATH="/var/www/html"
 export WP_INSTALL_LOCK_FILE="/tmp/wp_install.lock"
-#Mount nfs share
+
+# Create mount directory
 mkdir -p $WP_INSTALL_PATH
 
-#NFS
+# Install NFS client
 apt-get -y update
 sleep 30
 apt-get install nfs-common -y
 
-bash -c 'echo "samywplab.blob.core.windows.net:/samywplab/wordpress-content /var/www/html nfs sec=sys,vers=3,nolock,proto=tcp" >> /etc/fstab'
+# Mount OCI File Storage Service (FSS) NFS share
+bash -c 'echo "${mount_target_ip}:${export_path} /var/www/html nfs nfsvers=3,defaults,_netdev 0 0" >> /etc/fstab'
 mount -a
 
-# Install wordpress if not already installed
+# Install WordPress if not already installed
 if [ -z "$(ls -A $WP_INSTALL_PATH)" ]; then
-  echo "Wordpress installation directory is empty. Installing it now"
-  if [ -f "$WP_INSTALL_LOCK_FILE" ]; then 
+  echo "WordPress installation directory is empty. Installing it now"
+  if [ -f "$WP_INSTALL_LOCK_FILE" ]; then
     echo "Lock file already exists"
   else
-    echo "Lock file does not exist. Proceeding with installation" 
+    echo "Lock file does not exist. Proceeding with installation"
     touch "$WP_INSTALL_LOCK_FILE"
     wget http://wordpress.org/latest.tar.gz
     tar xvf latest.tar.gz -C $WP_INSTALL_PATH --strip-components=1
     rm "$WP_INSTALL_LOCK_FILE"
-  fi 
+  fi
 else
-   echo "Wordpress installation directory is not empty. skipping..."
+  echo "WordPress installation directory is not empty. Skipping..."
 fi
 
-#install php and composer
-
+# Install PHP and Composer
 apt install php8.1-fpm php8.1-cli php8.1-common php8.1-mbstring php8.1-xmlrpc php8.1-soap php8.1-gd php8.1-xml php8.1-intl php8.1-pgsql php8.1-cli php8.1-ldap php8.1-zip php8.1-curl php8.1-opcache php8.1-readline php8.1-xml php8.1-gd php8.1-imagick -y
 
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -39,7 +40,7 @@ php composer-setup.php
 php -r "unlink('composer-setup.php');"
 mv composer.phar /usr/local/bin/composer
 
-#Install and configure apache
+# Install and configure Apache
 apt install -y apache2 libapache2-mod-php
 
 a2enmod rewrite
@@ -52,5 +53,5 @@ chown -R www-data:www-data $WP_INSTALL_PATH
 systemctl enable apache2
 systemctl restart apache2
 
-# Restart agent to remotely execute commands
-systemctl restart walinuxagent
+# Install OCI agent (replaces walinuxagent)
+snap install oracle-cloud-agent --classic || true
