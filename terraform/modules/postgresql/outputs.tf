@@ -3,7 +3,7 @@ output "db_system_id" {
   value       = oci_psql_db_system.postgresql.id
 }
 
-output "db_endpoint" {
-  description = "PostgreSQL endpoint"
-  value       = oci_psql_db_system.postgresql.endpoints[0].fqdn
+output "db_system_state" {
+  description = "PostgreSQL DB System lifecycle state"
+  value       = oci_psql_db_system.postgresql.state
 }
