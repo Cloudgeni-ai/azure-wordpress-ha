@@ -1,0 +1,53 @@
+name: Cloudgeni Terraform Validate
+
+on:
+  workflow_dispatch:
+    inputs:
+      working_directory:
+        description: "Terraform working directory"
+        default: "terraform"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure OCI Credentials
+        uses: oracle-actions/configure-credentials@v1
+        with:
+          user: ${{ secrets.OCI_USER_OCID }}
+          fingerprint: ${{ secrets.OCI_FINGERPRINT }}
+          tenancy: ${{ secrets.OCI_TENANCY_OCID }}
+          region: eu-frankfurt-1
+          key_content: ${{ secrets.OCI_PRIVATE_KEY }}
+
+      - name: Terraform Init
+        run: terraform init -backend=false
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: ${{ inputs.working_directory }}
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -out=tfplan
+          terraform show -json tfplan > plan.json
+        working-directory: ${{ inputs.working_directory }}
+        env:
+          TF_VAR_tenancy_ocid: ${{ secrets.OCI_TENANCY_OCID }}
+          TF_VAR_availability_domain: ${{ vars.OCI_AVAILABILITY_DOMAIN }}
+          TF_VAR_ssh_public_key: ${{ secrets.OCI_SSH_PUBLIC_KEY }}
+          TF_VAR_database_admin_password: ${{ secrets.OCI_DB_PASSWORD }}
+
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: ${{ inputs.working_directory }}/plan.json

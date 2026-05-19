@@ -23,3 +23,7 @@ resource "oci_file_storage_export" "export" {
   file_system_id = oci_file_storage_file_system.wordpress_content.id
   path           = "/wordpress-content"
 }
+
+data "oci_core_private_ip" "mount_target_ip" {
+  private_ip_id = oci_file_storage_mount_target.mount_target.private_ip_ids[0]
+}

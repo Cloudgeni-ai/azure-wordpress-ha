@@ -5,7 +5,7 @@ output "file_system_id" {
 
 output "mount_target_ip" {
   description = "Mount target private IP address"
-  value       = oci_file_storage_mount_target.mount_target.private_ip_ids[0]
+  value       = data.oci_core_private_ip.mount_target_ip.ip_address
 }
 
 output "export_path" {
