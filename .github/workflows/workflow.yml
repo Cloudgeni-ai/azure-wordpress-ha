@@ -47,11 +47,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId || fromJson(secrets.AZURE_CREDENTIALS).appId }}
-          tenant-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId || fromJson(secrets.AZURE_CREDENTIALS).tenant }}
-          subscription-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId || fromJson(secrets.AZURE_CREDENTIALS).subscription || 'd647bcfd-4832-43d4-b02c-a82aeb620c2a' }}
+        env:
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId || fromJson(secrets.AZURE_CREDENTIALS).appId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret || fromJson(secrets.AZURE_CREDENTIALS).password }}
+          AZURE_SUBSCRIPTION_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId || fromJson(secrets.AZURE_CREDENTIALS).subscription || 'd647bcfd-4832-43d4-b02c-a82aeb620c2a' }}
+          AZURE_TENANT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId || fromJson(secrets.AZURE_CREDENTIALS).tenant }}
+        run: |
+          az login \
+            --service-principal \
+            --username "$AZURE_CLIENT_ID" \
+            --password "$AZURE_CLIENT_SECRET" \
+            --tenant "$AZURE_TENANT_ID" \
+            --output none
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
