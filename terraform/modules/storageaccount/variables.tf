@@ -18,7 +18,8 @@ variable "account_tier" {
 
 variable "enable_https_traffic_only" {
   description = "Enable https-only traffic."
-  default     = false
+  type        = bool
+  default     = true
 }
 
 variable "account_replication_type" {
@@ -33,6 +34,7 @@ variable "containers" {
 
 variable "public_network_access_enabled" {
   description = "Allow public access to blobs inside the account"
+  type        = bool
   default     = true
 }
 variable "account_kind" {
@@ -116,7 +118,7 @@ variable "blob_properties" {
 }
 
 variable "access_tier" {
-  description = " Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts"
-  type = string
-  default = "Hot"
+  description = "Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts"
+  type        = string
+  default     = "Hot"
 }

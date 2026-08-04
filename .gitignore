@@ -1,7 +1,15 @@
 #Terraform files
 plan.json
-*.terraform
-*.terraform.*
+.terraform/
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 terraform.tfstate
 terraform.tfstate.backup
 plan/
