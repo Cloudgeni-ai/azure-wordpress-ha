@@ -6,3 +6,10 @@ resource "azurerm_subnet" "subnet" {
   service_endpoints    = var.service_endpoints
 
 }
+
+resource "azurerm_subnet_network_security_group_association" "main" {
+  count = length(azurerm_network_security_group.nsg) > 0 ? 1 : 0
+
+  network_security_group_id = azurerm_network_security_group.nsg[0].id
+  subnet_id                 = azurerm_subnet.subnet.id
+}

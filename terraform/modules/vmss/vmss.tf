@@ -1,15 +1,17 @@
 resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
-  name                = var.vmss_name
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  upgrade_mode        = var.upgrade_mode
-  health_probe_id     = var.upgrade_mode == "Automatic" ||  var.upgrade_mode == "Rolling" ? azurerm_lb_probe.vmss.id : null
-  sku                 = var.sku
-  instances           = var.autoscaling_enabled == true ? var.instances : 0
-  admin_username      = var.admin_username
-  custom_data         = var.custom_data != "" ? var.custom_data : null
-  zones               = var.zones
-  zone_balance        = var.zone_balance
+  name                            = var.vmss_name
+  resource_group_name             = var.resource_group_name
+  location                        = var.location
+  upgrade_mode                    = var.upgrade_mode
+  health_probe_id                 = var.upgrade_mode == "Automatic" || var.upgrade_mode == "Rolling" ? azurerm_lb_probe.vmss.id : null
+  sku                             = var.sku
+  instances                       = var.autoscaling_enabled == true ? var.instances : 0
+  admin_username                  = var.admin_username
+  disable_password_authentication = true
+  custom_data                     = var.custom_data != "" ? var.custom_data : null
+  encryption_at_host_enabled      = true
+  zones                           = var.zones
+  zone_balance                    = var.zone_balance
 
 
   admin_ssh_key {
@@ -42,18 +44,18 @@ resource "azurerm_linux_virtual_machine_scale_set" "vmss" {
     version   = var.os_version
   }
 
-  dynamic rolling_upgrade_policy {
+  dynamic "rolling_upgrade_policy" {
     for_each = var.upgrade_mode == "Rolling" ? [1] : []
     content {
-      max_batch_instance_percent = 50
-      max_unhealthy_instance_percent = 50
+      max_batch_instance_percent              = 50
+      max_unhealthy_instance_percent          = 50
       max_unhealthy_upgraded_instance_percent = 50
-      pause_time_between_batches = "PT10M"
+      pause_time_between_batches              = "PT10M"
     }
 
   }
 
-  dynamic automatic_instance_repair {
+  dynamic "automatic_instance_repair" {
     for_each = var.automatic_instance_repair == true ? [1] : []
     content {
       enabled = true

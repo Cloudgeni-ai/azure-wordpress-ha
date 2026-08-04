@@ -58,7 +58,7 @@ variable "custom_data" {
 variable "zones" {
   description = "zones to place the virtual machine scale set"
   type        = list(any)
-  default     = ["1","2","3"]
+  default     = ["1", "2", "3"]
 }
 
 variable "zone_balance" {
@@ -174,9 +174,9 @@ variable "lb_sku" {
 }
 
 variable "network_security_group_id" {
-    description = "nsg ID for the vmss"
-    type = string
-  
+  description = "nsg ID for the vmss"
+  type        = string
+
 }
 
 variable "workspace_id" {
@@ -185,22 +185,22 @@ variable "workspace_id" {
   default     = ""
 }
 
-variable automatic_instance_repair {
+variable "automatic_instance_repair" {
   description = "Enable auto instance repair"
-  type = bool
-  default = false
+  type        = bool
+  default     = false
 }
 
 variable "public_lb" {
   description = "IF the load balancer is public"
-  type = bool
-  default = false
-  
+  type        = bool
+  default     = false
+
 }
 
 variable "lb_subnet_id" {
   description = "subnet id for the load balancer in case is internal"
-  type = string
-  default = ""
-  
+  type        = string
+  default     = ""
+
 }

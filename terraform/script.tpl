@@ -21,7 +21,7 @@ if [ -z "$(ls -A $WP_INSTALL_PATH)" ]; then
   else
     echo "Lock file does not exist. Proceeding with installation" 
     touch "$WP_INSTALL_LOCK_FILE"
-    wget http://wordpress.org/latest.tar.gz
+    wget https://wordpress.org/latest.tar.gz
     tar xvf latest.tar.gz -C $WP_INSTALL_PATH --strip-components=1
     rm "$WP_INSTALL_LOCK_FILE"
   fi 

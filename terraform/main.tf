@@ -52,12 +52,16 @@ module "storageaccount" {
   storage_account_name      = "sa${local.suffix}"
   region                    = local.region
   account_tier              = "Standard"
-  account_replication_type  = "LRS"
+  account_replication_type  = "GRS"
   account_kind              = "StorageV2"
   enable_https_traffic_only = false #Unsupported with NFS
   is_hns_enabled            = true
   nfsv3_enabled             = true
   enable_lock               = true
+  blob_properties = {
+    container_delete_retention_policy_days = 7
+    delete_retention_policy_days           = 7
+  }
   containers = [
     {
       name                  = "wordpress-content"
@@ -150,8 +154,8 @@ module "azure-postgresql" {
   database_postgresql_version        = "13"
   storage_mb                         = 32768
   backup_retention_days              = 20
-  geo_redundant_backup               = false
-  high_availability_enabled          = false
+  geo_redundant_backup               = true
+  high_availability_enabled          = true
   postgresql_zone                    = ""
   database_postgresql_admin_username = "adminsiteswordpress"
   database_postgresql_admin_password = var.database_postgresql_admin_password
