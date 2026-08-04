@@ -51,7 +51,7 @@ jobs:
         with:
           client-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId || fromJson(secrets.AZURE_CREDENTIALS).appId }}
           tenant-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId || fromJson(secrets.AZURE_CREDENTIALS).tenant }}
-          subscription-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId || fromJson(secrets.AZURE_CREDENTIALS).subscription }}
+          subscription-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId || fromJson(secrets.AZURE_CREDENTIALS).subscription || 'd647bcfd-4832-43d4-b02c-a82aeb620c2a' }}
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
