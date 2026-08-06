@@ -1,22 +1,66 @@
-# File: .github/workflows/workflow.yml
+name: Terraform Validate and Theme Deploy
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-name: deploy_themes
+permissions:
+  contents: read
 
 jobs:
-  deploy:
+  terraform-validate:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Azure CLI script
-      uses: azure/CLI@v1
-      with:
-        inlineScript: |
-          az storage blob upload-batch --account-name samywplab --auth-mode login -d 'wordpress-content/wp-content/' -s themes/
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init -input=false
+        working-directory: terraform
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: terraform
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -input=false -out=tfplan
+          terraform show -json tfplan > plan.json
+        working-directory: terraform
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: terraform/plan.json
+
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI script
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name samywplab --auth-mode login -d 'wordpress-content/wp-content/' -s themes/
