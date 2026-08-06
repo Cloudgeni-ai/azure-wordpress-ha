@@ -14,5 +14,5 @@ resource "azurerm_dns_zone" "mail_opengeni_ai" {
 
 import {
   to = azurerm_dns_zone.mail_opengeni_ai
-  id = "/subscriptions/b29dff3d-6e8d-4bb9-a8c0-b2d9fef4fef0/resourceGroups/rg-opengeni-dns-neu/providers/Microsoft.Network/dnszones/mail.opengeni.ai"
+  id = "/subscriptions/b29dff3d-6e8d-4bb9-a8c0-b2d9fef4fef0/resourceGroups/rg-opengeni-dns-neu/providers/Microsoft.Network/dnsZones/mail.opengeni.ai"
 }
