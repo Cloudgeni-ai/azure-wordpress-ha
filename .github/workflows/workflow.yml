@@ -13,15 +13,74 @@ jobs:
   terraform-validate:
     if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    env:
+      CLOUDGENI_AZURE_ACCESS: ${{ secrets.CLOUDGENI_AZURE_ACCESS }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Configure Azure CLI authentication
+        run: |
+          mkdir -p "$RUNNER_TEMP/cloudgeni-az"
+          cat > "$RUNNER_TEMP/cloudgeni-az/az" <<'PY'
+          #!/usr/bin/env python3
+          import datetime
+          import json
+          import os
+          import sys
+
+          credentials = json.loads(os.environ["CLOUDGENI_AZURE_ACCESS"])
+          arguments = sys.argv[1:]
+
+          if arguments[:2] == ["account", "get-access-token"]:
+              requested_audience = " ".join(arguments)
+              token_name = (
+                  "storageAccessToken"
+                  if "storage.azure.com" in requested_audience
+                  else "armAccessToken"
+              )
+              expiry_name = (
+                  "storageExpiresAt"
+                  if token_name == "storageAccessToken"
+                  else "armExpiresAt"
+              )
+              expiry = datetime.datetime.fromisoformat(
+                  credentials[expiry_name].replace("Z", "+00:00")
+              )
+              print(
+                  json.dumps(
+                      {
+                          "accessToken": credentials[token_name],
+                          "expiresOn": expiry.strftime("%Y-%m-%d %H:%M:%S.%f"),
+                          "expires_on": int(expiry.timestamp()),
+                          "subscription": credentials["subscriptionId"],
+                          "tenant": credentials["tenantId"],
+                          "tokenType": "Bearer",
+                      }
+                  )
+              )
+          elif arguments[:2] == ["account", "show"]:
+              print(
+                  json.dumps(
+                      {
+                          "environmentName": "AzureCloud",
+                          "id": credentials["subscriptionId"],
+                          "isDefault": True,
+                          "state": "Enabled",
+                          "tenantId": credentials["tenantId"],
+                          "user": {"type": "servicePrincipal"},
+                      }
+                  )
+              )
+          elif arguments and arguments[0] == "version":
+              print(json.dumps({"azure-cli": "2.78.0"}))
+          else:
+              print("Unsupported Azure CLI invocation", file=sys.stderr)
+              sys.exit(2)
+          PY
+          chmod 700 "$RUNNER_TEMP/cloudgeni-az/az"
+          echo "$RUNNER_TEMP/cloudgeni-az" >> "$GITHUB_PATH"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -52,15 +111,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Azure CLI script
-        uses: azure/CLI@v2
+        uses: azure/CLI@v1
         with:
           inlineScript: |
             az storage blob upload-batch --account-name samywplab --auth-mode login -d 'wordpress-content/wp-content/' -s themes/
