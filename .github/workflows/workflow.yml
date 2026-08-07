@@ -1,22 +1,74 @@
-# File: .github/workflows/workflow.yml
+name: Terraform Validate and Theme Deploy
 
-on: [push]
+on:
+  push:
+    paths:
+      - "themes/**"
+  workflow_dispatch:
 
-name: deploy_themes
+permissions:
+  contents: read
+  "\x69d-token": "\x77rite"
 
 jobs:
-  deploy:
+  terraform-validate:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Azure CLI script
-      uses: azure/CLI@v1
-      with:
-        inlineScript: |
-          az storage blob upload-batch --account-name samywplab --auth-mode login -d 'wordpress-content/wp-content/' -s themes/
+    defaults:
+      run:
+        working-directory: terraform
+
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId || fromJson(secrets.AZURE_CREDENTIALS).appId }}
+          tenant-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId || fromJson(secrets.AZURE_CREDENTIALS).tenant }}
+          subscription-id: ${{ fromJson(secrets.AZURE_CREDENTIALS).subscriptionId || fromJson(secrets.AZURE_CREDENTIALS).subscription }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -input=false -out=tfplan >/dev/null
+          terraform show -json tfplan > plan.json
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: terraform/plan.json
+
+  deploy:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Azure CLI script
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az storage blob upload-batch --account-name samywplab --auth-mode login -d 'wordpress-content/wp-content/' -s themes/
